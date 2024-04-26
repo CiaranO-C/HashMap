@@ -10,13 +10,15 @@ function HashMap() {
     const primeNum = 31;
     for (let i = 0; i < key.length; i++) {
       hashCode = primeNum * hashCode + key.charCodeAt(i);
-      hashCode = hashCode % 16;
+      hashCode = hashCode % capacity;
     }
     return hashCode;
   }
 
   function set(key, value) {
     const hashKey = hash(key);
+    //if size >= capacity/loadFactor
+    //capacity *2
     if (!buckets[hashKey]) {
       buckets[hashKey] = LinkedList();
       buckets[hashKey].append(key, value);
@@ -42,6 +44,7 @@ function HashMap() {
     if (!bucket) return null;
 
     const node = bucket.find(key);
+    if (!node) return null;
     const value = node.value;
 
     return value;
@@ -49,7 +52,6 @@ function HashMap() {
 
   function has(key) {
     const bucket = getBucket(key);
-
     const node = bucket.find(key);
     if (node) {
       return true;
@@ -78,6 +80,7 @@ function HashMap() {
 
   function clear() {
     buckets.length = 0;
+    size = 0;
   }
 
   function keys() {
@@ -119,11 +122,7 @@ function HashMap() {
     return pairs;
   }
 
-  function arr(){
-    console.log(buckets);
-  }
-
-  return { set, get, remove, length, clear, keys, values, pairs, arr };
+  return { set, get, remove, length, clear, keys, values, pairs };
 }
 
 function LinkedList() {
@@ -151,7 +150,7 @@ function LinkedList() {
   function remove(key) {
     let previousNode = null;
     let currentNode = head;
-    while (currentNode.key != key && currentNode != null) {
+    while (currentNode != null && currentNode.key != key) {
       previousNode = currentNode;
       currentNode = currentNode.next;
     }
@@ -174,11 +173,11 @@ function LinkedList() {
 
   function find(key) {
     let currentNode = head;
-    while (currentNode.key != key && currentNode != null) {
+    while (currentNode != null && currentNode.key != key) {
       currentNode = currentNode.next;
     }
     if (currentNode === null) {
-      console.error("key was not found");
+      console.log("No matching key");
       return null;
     }
     return currentNode;
@@ -210,8 +209,31 @@ function Node(key, value, next = null) {
 }
 
 const map = HashMap();
-map.set('one', 1);
-map.set('two', 2);
+map.set("one", 1);
+map.set("two", 2);
+console.log(map.pairs());
+console.log(map.keys());
+console.log(map.values());
+console.log(map.length());
+map.set("one", 11);
+console.log(map.pairs());
+console.log(map.keys());
+console.log(map.values());
+console.log(map.length());
+
+console.log("collision test:");
+map.set("noe", 3);
+map.set("pt", 4);
+console.log(map.pairs());
+console.log(map.keys());
+console.log(map.values());
+console.log(map.length());
+console.log(map.get("noe"));
+console.log(map.get("pt"));
+console.log(map.remove("noe"));
+console.log(map.get("noe"));
+console.log(map.remove("noe"));
+map.clear();
 console.log(map.pairs());
 console.log(map.keys());
 console.log(map.values());
