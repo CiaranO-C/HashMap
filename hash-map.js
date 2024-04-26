@@ -1,5 +1,6 @@
 function HashMap() {
   let capacity = 16;
+  let size = 0;
   const loadFactor = 0.75;
   const buckets = [];
 
@@ -16,19 +17,30 @@ function HashMap() {
 
   function set(key, value) {
     const hashKey = hash(key);
-    const node = Node(key, value);
-
-    //if k already present, overwrite old value with v
+    if (!buckets[hashKey]) {
+      buckets[hashKey] = LinkedList();
+      buckets[hashKey].append(key, value);
+      size++;
+    } else if (has(key)) {
+      buckets[hashKey].overwrite(key, value);
+    } else {
+      buckets[hashKey].append(key, value);
+      size++;
+    }
   }
 
   function getBucket(key) {
     const hashKey = hash(key);
-    const bucket = buckets[hashKey];
+    const bucket = buckets[hashKey] || null;
+    if (bucket === null) console.error("Bucket empty!");
+
     return bucket;
   }
 
   function get(key) {
     const bucket = getBucket(key);
+    if (!bucket) return null;
+
     const node = bucket.find(key);
     const value = node.value;
 
@@ -37,8 +49,9 @@ function HashMap() {
 
   function has(key) {
     const bucket = getBucket(key);
+
     const node = bucket.find(key);
-    if (node.value) {
+    if (node) {
       return true;
     } else {
       return false;
@@ -47,19 +60,20 @@ function HashMap() {
 
   function remove(key) {
     const bucket = getBucket(key);
+    if (!bucket) return null;
     const isRemoved = bucket.remove(key);
 
     return isRemoved;
   }
 
   function length() {
-    let length = 0;
+    /*let length = 0;
     buckets.forEach((bucket) => {
       const size = bucket.size();
       length += size;
     });
-
-    return length;
+*/
+    return size;
   }
 
   function clear() {
@@ -67,21 +81,49 @@ function HashMap() {
   }
 
   function keys() {
-    //returns an array containing all the keys inside the hash map.
+    let keys = null;
+    buckets.forEach((bucket) => {
+      const keyArray = bucket.collate("key");
+      if (!keys) {
+        keys = keyArray;
+      } else {
+        keys = keys.concat(keyArray);
+      }
+    });
+    return keys;
   }
 
   function values() {
-    //returns an array containing all the values.
+    let values = null;
+    buckets.forEach((bucket) => {
+      const valueArray = bucket.collate("value");
+      if (!values) {
+        values = valueArray;
+      } else {
+        values = values.concat(valueArray);
+      }
+    });
+    return values;
   }
 
-  function entries() {
-    /*
-        returns an array that contains each key, value pair. 
-        `Example: [[firstKey, firstValue], [secondKey, secondValue]]
-        */
+  function pairs() {
+    let pairs = null;
+    buckets.forEach((bucket) => {
+      const pairArray = bucket.collate();
+      if (!pairs) {
+        pairs = pairArray;
+      } else {
+        pairs = pairs.concat(pairArray);
+      }
+    });
+    return pairs;
   }
 
-  return { hash };
+  function arr(){
+    console.log(buckets);
+  }
+
+  return { set, get, remove, length, clear, keys, values, pairs, arr };
 }
 
 function LinkedList() {
@@ -142,7 +184,21 @@ function LinkedList() {
     return currentNode;
   }
 
-  return { size, append, remove, overwrite, find };
+  function collate(property) {
+    const properties = [];
+    let currentNode = head;
+    while (currentNode != null) {
+      if (!property) {
+        properties.push([currentNode.key, currentNode.value]);
+      } else {
+        properties.push(currentNode[property]);
+      }
+      currentNode = currentNode.next;
+    }
+    return properties;
+  }
+
+  return { size, append, remove, overwrite, find, collate };
 }
 
 function Node(key, value, next = null) {
@@ -154,3 +210,9 @@ function Node(key, value, next = null) {
 }
 
 const map = HashMap();
+map.set('one', 1);
+map.set('two', 2);
+console.log(map.pairs());
+console.log(map.keys());
+console.log(map.values());
+console.log(map.length());
