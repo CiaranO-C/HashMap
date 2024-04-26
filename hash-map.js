@@ -17,8 +17,10 @@ function HashMap() {
 
   function set(key, value) {
     const hashKey = hash(key);
-    //if size >= capacity/loadFactor
+    //if no. of nodes >= capacity*loadFactor
     //capacity *2
+    //size = 0
+    //re hash every node into larger array
     if (!buckets[hashKey]) {
       buckets[hashKey] = LinkedList();
       buckets[hashKey].append(key, value);
@@ -208,33 +210,29 @@ function Node(key, value, next = null) {
   };
 }
 
+function logMap(){
+    console.log(map.pairs());
+    console.log(map.keys());
+    console.log(map.values());
+    console.log(map.length());
+}
+
 const map = HashMap();
 map.set("one", 1);
 map.set("two", 2);
-console.log(map.pairs());
-console.log(map.keys());
-console.log(map.values());
-console.log(map.length());
+logMap();
 map.set("one", 11);
-console.log(map.pairs());
-console.log(map.keys());
-console.log(map.values());
-console.log(map.length());
+logMap();
 
 console.log("collision test:");
 map.set("noe", 3);
 map.set("pt", 4);
-console.log(map.pairs());
-console.log(map.keys());
-console.log(map.values());
-console.log(map.length());
+logMap();
+
 console.log(map.get("noe"));
 console.log(map.get("pt"));
 console.log(map.remove("noe"));
 console.log(map.get("noe"));
 console.log(map.remove("noe"));
 map.clear();
-console.log(map.pairs());
-console.log(map.keys());
-console.log(map.values());
-console.log(map.length());
+logMap();
